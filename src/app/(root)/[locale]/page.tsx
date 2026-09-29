@@ -1,162 +1,46 @@
-// Server Component — Home Page
-// Fetches all homepage section data in parallel via Promise.all, then passes
-// each section's content to its component. Sanity stores all text as bilingual
-// objects `{ en: string; es: string }`, so every prop is accessed with
-// `[locale as "en" | "es"]` to pull the right language at render time.
-// Structured data (JSON-LD) and hreflang alternates are injected here for SEO.
-
-import Hero from "@/components/HomePage/HeroComponents/Hero";
-import { homePageHero } from "@/sanity/queries/HomePage/Hero";
-import BrandStatement from "@/components/HomePage/BrandStatement/BrandStatement";
-import { homePageBrandStatement } from "@/sanity/queries/HomePage/BrandStatement";
-import PackageCategories from "@/components/HomePage/PackageCategories/PackageCategories";
-import { homePagePackageCategories } from "@/sanity/queries/HomePage/PackageCategories";
-import HowItWorks from "@/components/HomePage/HowItWorks/HowItWorks";
-import { homePageHowItWorks } from "@/sanity/queries/HomePage/HowItWorks";
-import { StepIconType } from "@/components/HomePage/HowItWorks/HowItWorksStep";
-import FeaturedStory from "@/components/HomePage/FeaturedStory/FeaturedStory";
-import { homePageFeatureStorySection } from "@/sanity/queries/HomePage/FeaturedStorySection";
-import TrustIndicators from "@/components/HomePage/TrustIndicators/TrustIndicators";
-import { homePageTrustIndicators } from "@/sanity/queries/HomePage/TrustIndicators";
-import { TrustIconType } from "@/components/HomePage/TrustIndicators/TrustIndicatorIcon";
-import CTABanner from "@/components/HomePage/CTABanner/CTABanner";
-import { homePageCTABanner } from "@/sanity/queries/HomePage/CTABanner";
+import Image from "next/image";
 import JsonLd from "@/components/seo/JsonLd";
-import {
-  buildSeoMetadata,
-  fallbackSiteMetadata,
-} from "@/lib/seo/buildMetadata";
+import { Link } from "@/i18n/navigation";
+import ExperienceCatalog from "@/components/ExperienceCatalog/ExperienceCatalog";
+import styles from "@/components/ExperienceCatalog/catalog.module.css";
+import { homePageHero } from "@/sanity/queries/HomePage/Hero";
+import { getExperienceCatalog } from "@/sanity/queries/ProposalPackages/catalog";
+import { buildSeoMetadata, fallbackSiteMetadata } from "@/lib/seo/buildMetadata";
 import { siteCanonicalUrl } from "@/lib/seo/constants";
 import { getPageSeo, getStructuredData } from "@/sanity/queries/SEO/seo";
-export default async function Home({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const [
-    hero,
-    brandStatement,
-    packageCategories,
-    howItWorks,
-    featureStorySection,
-    trustIndicators,
-    ctaBanner,
-    structuredData,
-  ] = await Promise.all([
-    homePageHero(),
-    homePageBrandStatement(),
-    homePagePackageCategories(),
-    homePageHowItWorks(),
-    homePageFeatureStorySection(),
-    homePageTrustIndicators(),
-    homePageCTABanner(),
-    getStructuredData("home"),
-  ]);
 
-  return (
-    <main>
-      <JsonLd
-        id="structured-data-schema"
-        data={structuredData.seo.structuredData[locale as "en" | "es"]}
-      />
-      <Hero
-        image={hero?.image}
-        eyebrow={hero.eyebrow[locale as "en" | "es"]}
-        headingLine1={hero.headingLine1[locale as "en" | "es"]}
-        headingLine2={hero.headingLine2[locale as "en" | "es"]}
-        headingLine3={hero.headingLine3[locale as "en" | "es"]}
-        subheading={hero.subheading[locale as "en" | "es"]}
-        primaryLabel={hero.primaryLabel[locale as "en" | "es"]}
-        primaryHref={hero.primaryHref}
-        secondaryLabel={hero.secondaryLabel[locale as "en" | "es"]}
-        secondaryHref={hero.secondaryHref}
-      />
-      <BrandStatement
-        quote={brandStatement.quote[locale as "en" | "es"]}
-        body={brandStatement.body[locale as "en" | "es"]}
-        signature={brandStatement.signature}
-      />
-      <PackageCategories
-        eyebrow={packageCategories.eyebrow[locale as "en" | "es"]}
-        headingLine1={packageCategories.headingLine1[locale as "en" | "es"]}
-        headingLine2={packageCategories.headingLine2[locale as "en" | "es"]}
-        categories={packageCategories.categories}
-        locale={locale}
-      />
-      <HowItWorks
-        eyebrow={howItWorks.eyebrow[locale as "en" | "es"]}
-        headingLine1={howItWorks.headingLine1[locale as "en" | "es"]}
-        headingLine2={howItWorks.headingLine2[locale as "en" | "es"]}
-        ctaLabel={howItWorks.ctaLabel[locale as "en" | "es"]}
-        ctaHref={howItWorks.ctaHref}
-        steps={howItWorks.steps.map((step) => ({
-          step: step.step,
-          icon: step.icon as StepIconType,
-          title: step.title[locale as "en" | "es"],
-          description: step.description[locale as "en" | "es"],
-        }))}
-      />
-      <FeaturedStory
-        eyebrow={featureStorySection.eyebrow[locale as "en" | "es"]}
-        heading={featureStorySection.heading[locale as "en" | "es"]}
-        stories={featureStorySection.stories.map((story) => ({
-          coupleName: story.coupleName,
-          location: story.location[locale as "en" | "es"],
-          date: story.date,
-          packageUsed: story.packageUsed[locale as "en" | "es"],
-          quote: story.quote[locale as "en" | "es"],
-          imageSrc: story.image?.asset?.url,
-          imageAlt: story.image?.alt,
-        }))}
-        locale={locale}
-      />
-      <TrustIndicators
-        items={trustIndicators.items.map((item) => ({
-          icon: item.icon as TrustIconType,
-          value: item.value[locale as "en" | "es"],
-          label: item.label[locale as "en" | "es"],
-          sublabel: item.sublabel[locale as "en" | "es"],
-        }))}
-      />
-      <CTABanner
-        eyebrow={ctaBanner.eyebrow[locale as "en" | "es"]}
-        headingLine1={ctaBanner.headingLine1[locale as "en" | "es"]}
-        headingLine2={ctaBanner.headingLine2[locale as "en" | "es"]}
-        subheading={ctaBanner.subheading[locale as "en" | "es"]}
-        primaryLabel={ctaBanner.primaryLabel[locale as "en" | "es"]}
-        primaryHref={ctaBanner.primaryHref}
-        secondaryLabel={ctaBanner.secondaryLabel[locale as "en" | "es"]}
-        secondaryHref={ctaBanner.secondaryHref}
-      />
-    </main>
-  );
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "es" ? "es" : "en";
+  const [hero, experiences, structuredData] = await Promise.all([homePageHero(), getExperienceCatalog(), getStructuredData("home")]);
+  const es = locale === "es";
+  const image = hero?.image?.asset?.url || experiences[0]?.photos[0]?.url;
+  return <main className={styles.page}>
+    <JsonLd id="structured-data-schema" data={structuredData?.seo?.structuredData?.[locale]} />
+    <section className={styles.hero}>
+      <div><p className={styles.eyebrow}>Punta Cana, Dominican Republic</p>
+        <h1>{es ? "Un momento para ustedes. A su manera." : "A moment for the two of you. Made yours."}</h1>
+        <p>{es ? "Propuestas de matrimonio y cenas rom\u00e1nticas para celebrar. Explora, personaliza y consulta disponibilidad sin salir del cat\u00e1logo." : "Marriage proposals and romantic dinners worth celebrating. Explore, personalize and enquire, all in one place."}</p>
+        <nav className={styles.heroActions} aria-label={es ? "Experiencias" : "Experiences"}><a href="#proposals">{es ? "Propuestas de matrimonio" : "Explore proposals"} &#8599;</a><a href="#romantic-dinners">{es ? "Cenas rom\u00e1nticas" : "Romantic dinners"} &#8599;</a></nav>
+      </div>
+      {image && <div className={styles.heroPhoto}><Image src={image} alt={hero?.image?.alt || (es ? "Una experiencia rom\u00e1ntica en Punta Cana" : "A romantic experience in Punta Cana")} fill sizes="(max-width: 720px) 1px, 45vw" priority className={styles.photo} /></div>}
+    </section>
+    <ExperienceCatalog experiences={experiences} locale={locale} />
+    <section className={styles.steps} id="how-it-works" aria-label={es ? "C\u00f3mo funciona" : "How it works"}>
+      <p><strong>{es ? "01. Elige tu experiencia" : "01. Choose your experience"}</strong>{es ? "Compara las fotos y elige tu propuesta o cena." : "Explore the photos and find your proposal or dinner."}</p>
+      <p><strong>{es ? "02. Hazla tuya" : "02. Make it yours"}</strong>{es ? "Selecciona estilo, extras y, para las cenas, el men\u00fa de cada persona." : "Select the style, extras and, for dinners, each guest's menu."}</p>
+      <p><strong>{es ? "03. Coordinamos los detalles" : "03. We arrange the details"}</strong>{es ? "Env\u00eda tu solicitud. Confirmaremos disponibilidad y precio antes de reservar." : "Send your request. We confirm availability and pricing before booking."} <Link href="/contact">{es ? "Habla con nosotros" : "Talk to us"} &#8599;</Link></p>
+    </section>
+  </main>;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: "en" | "es" }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: "en" | "es" }> }) {
   const { locale } = await params;
   const pageSeo = await getPageSeo("home");
   const path = "";
   const canonicalUrl = siteCanonicalUrl(locale, path);
-  if (!pageSeo) {
-    return fallbackSiteMetadata(locale, path, canonicalUrl);
-  }
-
-  return buildSeoMetadata({
-    locale,
-    path,
-    canonicalUrl,
-    meta: pageSeo.seo.meta[locale],
-    openGraph: {
-      title: pageSeo.seo.openGraph[locale].title,
-      description: pageSeo.seo.openGraph[locale].description,
-      image: pageSeo.seo.openGraph.image,
-    },
-    noIndex: pageSeo.seo.noIndex,
-    noFollow: pageSeo.seo.noFollow,
-  });
+  if (!pageSeo) return fallbackSiteMetadata(locale, path, canonicalUrl);
+  return buildSeoMetadata({ locale, path, canonicalUrl, meta: pageSeo.seo.meta[locale],
+    openGraph: { title: pageSeo.seo.openGraph[locale].title, description: pageSeo.seo.openGraph[locale].description, image: pageSeo.seo.openGraph.image },
+    noIndex: pageSeo.seo.noIndex, noFollow: pageSeo.seo.noFollow });
 }
